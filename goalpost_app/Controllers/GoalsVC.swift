@@ -29,6 +29,11 @@ class GoalsVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super .viewWillAppear(animated)
+        fetchCoreDataObjects()
+        tableView.reloadData()
+    }
+    
+    func fetchCoreDataObjects() {
         self.fetch { (complete) in
             if complete {
                 if goals.count >= 1 {
@@ -64,10 +69,43 @@ extension GoalsVC: UITableViewDelegate, UITableViewDataSource {
         cell.configureCell(goal: goal)
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
+        return .none
+    }
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        let deleteAction = UITableViewRowAction(style: .destructive, title: "DELETE") { (rowAction, indexPath) in
+            tableView.beginUpdates()
+            self.removeGoal(atIndexPath: indexPath)
+            self.fetchCoreDataObjects()
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            tableView.endUpdates()
+    }
+        deleteAction.backgroundColor = #colorLiteral(red: 0.7450980544, green: 0.1568627506, blue: 0.07450980693, alpha: 1)
+        
+        return [deleteAction]
+ }
 }
 
 
 extension GoalsVC {
+    
+    func removeGoal(atIndexPath indexPath: IndexPath) {
+        guard let managedContext = appDelgate?.persistentContainer.viewContext else {return}
+        managedContext.delete(goals[indexPath.row])
+        
+        do {
+            try managedContext.save()
+            print("Goal removed!")
+        } catch {
+            debugPrint("Could not remove:\(error.localizedDescription)")
+        }
+        
+        
+    }
     func fetch(comepletion:(_ complete: Bool)-> ()) {
         guard let managedContext = appDelgate?.persistentContainer.viewContext else {return}
         
@@ -83,9 +121,6 @@ extension GoalsVC {
         }
         tableView.reloadData()
     }
-
-
-    
 }
 
 
