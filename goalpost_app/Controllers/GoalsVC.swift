@@ -9,9 +9,12 @@
 import UIKit
 import CoreData
 
+// public constant to be accessied from anywhere for saving context. 
+let appDelgate = UIApplication.shared.delegate as? AppDelegate
+
 class GoalsVC: UIViewController {
     
-      @IBOutlet weak var tableView: UITableView!
+@IBOutlet weak var tableView: UITableView!
     
     
     override func viewDidLoad() {
@@ -45,9 +48,4 @@ extension GoalsVC: UITableViewDelegate, UITableViewDataSource {
         cell.configureCell(description: "Workout 3 times a week.", type: .shortTerm, goalProgressAmount: 2)
         return cell
     }
-    
-    
-    
-    
-    
 }
